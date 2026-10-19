@@ -4,8 +4,25 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import GradeBadge from "@/components/GradeBadge";
 import PageHeader from "@/components/PageHeader";
-import { getBuyer } from "@/lib/buyers";
-import { pct, usd } from "@/lib/format";
+import SpeakButton from "@/components/SpeakButton";
+import { getBuyer, type Buyer } from "@/lib/buyers";
+import { int, pct, usd } from "@/lib/format";
+
+const SIGNAL_NOTE = "이 신호들은 확인해 볼 이유이지, 연체의 원인이라는 뜻은 아닙니다.";
+
+// 읽어 주기용 글 한 줄 — 서버에서 이 바이어 한 곳의 값으로만 만든다.
+function spokenSummary(b: Buyer): string {
+  const parts = [
+    `${b.id}, ${b.name}.`,
+    `등급 ${b.grade}.`,
+    `채권 ${int(b.openArUsd)}달러, 연체 ${int(b.overdueUsd)}달러.`,
+    `위험 점수 ${pct(b.pd30d)}.`,
+  ];
+  if (b.signals.length > 0) {
+    parts.push(`신호 ${b.signals.length}개: ${b.signals.join(", ")}.`, SIGNAL_NOTE);
+  }
+  return parts.join(" ");
+}
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -43,6 +60,10 @@ export default async function Page({ params }: Props) {
     <div className="space-y-8">
       <PageHeader title={b.name} asof="2026-09-30 · (가상) 합성 데이터" line={`${b.id} · ${b.countryKo} · ${b.region}`} />
 
+      <div className="-mt-4">
+        <SpeakButton text={spokenSummary(b)} />
+      </div>
+
       <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {cells.map((c) => (
           <div key={c.label} className="rounded-lg border border-line bg-surface p-3">
@@ -65,7 +86,7 @@ export default async function Page({ params }: Props) {
         ) : (
           <p className="text-muted">표시된 신호가 없습니다.</p>
         )}
-        <p className="text-sm text-muted">이 신호들은 확인해 볼 이유이지, 연체의 원인이라는 뜻은 아닙니다.</p>
+        <p className="text-sm text-muted">{SIGNAL_NOTE}</p>
       </section>
 
       <Link href="/buyers" className="inline-flex min-h-11 items-center rounded-md border border-line px-4 text-accent">
