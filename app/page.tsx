@@ -1,11 +1,14 @@
 import Link from "next/link";
+import fxSaved from "@/data/fx_fallback.json";
 import DeployBadge from "@/components/DeployBadge";
+import FxTile from "@/components/FxTile";
 import KpiCard from "@/components/KpiCard";
 import Notice from "@/components/Notice";
 import PageHeader from "@/components/PageHeader";
 import ReviewAlarm from "@/components/ReviewAlarm";
 import { getBuyers } from "@/lib/buyers";
 import { int, kst, pct, usd } from "@/lib/format";
+import { kpis } from "@/lib/metrics";
 import { getRecentReviews, statusBadgeClass } from "@/lib/reviews";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +21,9 @@ export default async function Home() {
   const gradeC = buyers.filter((b) => b.grade === "C");
   const arAll = buyers.reduce((sum, b) => sum + b.openArUsd, 0);
   const arC = gradeC.reduce((sum, b) => sum + b.openArUsd, 0);
+  const k = kpis(buyers);
+  // 환율 타일의 기준일 환율 — 저장본의 2026-09-30 블록 USD/KRW(없으면 NaN → 화면에 "—").
+  const baseKrw = fxSaved["2026-09-30"].find((r) => r.quote === "KRW")?.rate ?? Number.NaN;
 
   return (
     <div className="space-y-6">
@@ -26,6 +32,7 @@ export default async function Home() {
         asof="2026-09-30 · (가상) 합성 데이터"
         line="바이어 채권 · 등급을 휴대폰에서 보는 사내 웹앱입니다. 쪽은 실습에서 하나씩 더합니다."
       />
+      <FxTile cArUsd={k.cArUsd} overdueUsd={k.overdueUsd} overdueCount={k.overdueCount} base={{ date: "2026-09-30", krw: baseKrw }} />
 
       <section aria-label="요약 숫자" className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <KpiCard label="바이어" value={`${int(total)}곳`} sub="Supabase DB에서 읽음" />

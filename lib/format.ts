@@ -23,6 +23,12 @@ export function krw(v: Num): string {
   return `${whole.format(Math.round(v))}원`;
 }
 
+/** 환율(1달러에 원): 1234.5 → "1,234.50원" (소수 둘째 자리) */
+export function fx(v: Num): string {
+  if (!ok(v)) return EMPTY;
+  return `${new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v)}원`;
+}
+
 /** 비율 → 백분율: 0.5 → "50.0%" (digits = 소수 자리, 기본 1) */
 export function pct(ratio: Num, digits = 1): string {
   if (!ok(ratio)) return EMPTY;
