@@ -1,6 +1,6 @@
-import data from "@/data/buyers.json";
+import { db } from "@/lib/db";
 
-// 바이어 데이터 읽기. 지금은 JSON을 돌려줄 뿐이지만 async로 둔다 — 5일차에 DB로 바꿀 때 두 함수의 속만 바뀐다.
+// 바이어 데이터 읽기 — 서버 전용. DB(Supabase)의 Buyer 표를 읽는다(4일차의 JSON과 같은 16칸).
 export type Grade = "S" | "A" | "B" | "C";
 
 export type Buyer = {
@@ -22,14 +22,14 @@ export type Buyer = {
   signals: string[];
 };
 
-const buyers = data as Buyer[];
-
+// DB의 grade 칸은 string — 넣은 값이 S · A · B · C뿐이라 Grade로 맞춘다.
 export async function getBuyers(): Promise<Buyer[]> {
-  return buyers;
+  const rows = await db().buyer.findMany({ orderBy: { id: "asc" } });
+  return rows as Buyer[];
 }
 
 /** id는 대문자로 맞춰 찾는다(b048 → B048). 없으면 null. */
 export async function getBuyer(id: string): Promise<Buyer | null> {
-  const key = id.trim().toUpperCase();
-  return buyers.find((b) => b.id === key) ?? null;
+  const row = await db().buyer.findUnique({ where: { id: id.trim().toUpperCase() } });
+  return row as Buyer | null;
 }

@@ -8,6 +8,8 @@ import { getBuyers, type Buyer } from "@/lib/buyers";
 import { byRegion, filterByGrade, gradeCounts, isGrade, kpis, topRisk } from "@/lib/metrics";
 import { int, pct, usd } from "@/lib/format";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = { title: "바이어" };
 
 function BuyerCell({ b, rank }: { b: Buyer; rank?: number }) {

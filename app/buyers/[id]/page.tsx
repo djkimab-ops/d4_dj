@@ -4,9 +4,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import GradeBadge from "@/components/GradeBadge";
 import PageHeader from "@/components/PageHeader";
+import ReviewForm from "@/components/ReviewForm";
 import SpeakButton from "@/components/SpeakButton";
 import { getBuyer, type Buyer } from "@/lib/buyers";
-import { int, pct, usd } from "@/lib/format";
+import { int, kst, pct, usd } from "@/lib/format";
+import { getReviews, statusBadgeClass } from "@/lib/reviews";
+
+export const dynamic = "force-dynamic";
 
 const SIGNAL_NOTE = "이 신호들은 확인해 볼 이유이지, 연체의 원인이라는 뜻은 아닙니다.";
 
@@ -36,6 +40,7 @@ export default async function Page({ params }: Props) {
   const { id } = await params;
   const b = await getBuyer(id);
   if (!b) notFound();
+  const reviews = await getReviews(b.id);
 
   const cells: { label: string; value: ReactNode; num?: boolean }[] = [
     { label: "나라", value: b.countryKo },
@@ -87,6 +92,32 @@ export default async function Page({ params }: Props) {
           <p className="text-muted">표시된 신호가 없습니다.</p>
         )}
         <p className="text-sm text-muted">{SIGNAL_NOTE}</p>
+      </section>
+
+      <section aria-labelledby="reviews" className="space-y-3">
+        <h2 id="reviews" className="text-lg font-bold text-ink">
+          확인 기록
+        </h2>
+        <ReviewForm buyerId={b.id} />
+        {reviews.length > 0 ? (
+          <ul className="divide-y divide-line rounded-lg border border-line">
+            {reviews.map((r) => (
+              <li key={r.id} className="space-y-1 p-3">
+                <span
+                  className={`inline-flex items-center rounded border px-1.5 text-sm font-semibold ${statusBadgeClass(r.status)}`}
+                >
+                  {r.status}
+                </span>
+                <p className="whitespace-pre-line text-ink">{r.memo}</p>
+                <p className="text-xs text-muted">
+                  {r.reviewer} · <span className="num">{kst(r.createdAt)}</span>
+                </p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-muted">아직 확인 기록이 없습니다</p>
+        )}
       </section>
 
       <Link href="/buyers" className="inline-flex min-h-11 items-center rounded-md border border-line px-4 text-accent">
