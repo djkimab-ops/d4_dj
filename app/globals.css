@@ -28,6 +28,31 @@ body {
   overflow-wrap: anywhere;
 }
 
+/* 감시 모드 알람: 새 기록이 오면 빛이 반짝인다(0.5초 × 6번 = 3초 뒤 멈춤) */
+@keyframes alarm-flash {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+    background-color: var(--color-surface);
+  }
+  50% {
+    box-shadow: 0 0 0 4px var(--color-accent), 0 0 18px 6px color-mix(in srgb, var(--color-accent) 55%, transparent);
+    background-color: color-mix(in srgb, var(--color-accent) 18%, var(--color-bg));
+  }
+}
+
+.alarm-flash {
+  border-radius: 0.5rem;
+  animation: alarm-flash 0.5s ease-in-out 6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .alarm-flash {
+    animation: none;
+    box-shadow: 0 0 0 3px var(--color-accent);
+  }
+}
+
 /* 숫자 · 금액 · %: 자리 맞춤 + 한 줄 */
 .num {
   font-variant-numeric: tabular-nums;

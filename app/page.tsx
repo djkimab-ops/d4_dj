@@ -3,6 +3,7 @@ import DeployBadge from "@/components/DeployBadge";
 import KpiCard from "@/components/KpiCard";
 import Notice from "@/components/Notice";
 import PageHeader from "@/components/PageHeader";
+import ReviewAlarm from "@/components/ReviewAlarm";
 import { getBuyers } from "@/lib/buyers";
 import { int, kst, pct, usd } from "@/lib/format";
 import { getRecentReviews, statusBadgeClass } from "@/lib/reviews";
@@ -41,6 +42,7 @@ export default async function Home() {
         <h2 id="recent-reviews" className="text-lg font-bold text-ink">
           최근 확인 기록
         </h2>
+        <ReviewAlarm initialLatestId={recent[0]?.id ?? null} />
         {recent.length > 0 ? (
           <ul className="divide-y divide-line rounded-lg border border-line">
             {recent.map((r) => (
